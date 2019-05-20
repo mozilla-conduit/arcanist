@@ -1086,7 +1086,7 @@ EOTEXT
       $file_list = '    '.implode("\n    ", $file_list);
       echo $file_list;
 
-      if (!phutil_console_confirm($confirm, $default_no = false)) {
+      if (!$this->mozPhabConfirm($confirm) && !phutil_console_confirm($confirm, $default_no = false)) {
         throw new ArcanistUsageException(pht('Aborted workflow to fix UTF-8.'));
       } else {
         foreach ($utf8_problems as $change) {
@@ -1870,7 +1870,7 @@ EOTEXT
               $list->drawConsoleString());
 
             $confirm = pht('Continue even though reviewers are unavailable?');
-            if (!phutil_console_confirm($confirm)) {
+            if (!$this->mozPhabConfirm($confirm) && !phutil_console_confirm($confirm)) {
               throw new ArcanistUsageException(
                 pht('Specify available reviewers and retry.'));
             }
@@ -2996,6 +2996,16 @@ EOTEXT
       phlog($ex);
       return false;
     }
+  }
+
+  private function mozPhabConfirm($message) {
+    // When called from moz-phab just display the confirmation message and
+    // return `true`.
+    if (!getenv("MOZPHAB")) {
+      return false;
+    }
+    echo "\n" . phutil_console_wrap($message.' ', 4) . "Yes\n\n";
+    return true;
   }
 
 }
