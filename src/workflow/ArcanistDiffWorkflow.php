@@ -3018,5 +3018,4 @@ EOTEXT
     echo "\n" . phutil_console_wrap($message.' ', 4) . "Yes\n\n";
     return true;
   }
-
 }
