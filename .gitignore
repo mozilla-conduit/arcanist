@@ -33,3 +33,7 @@
 
 # Generated shell completion rulesets.
 /support/shell/rules/
+
+# Python extension compiled files.
+/support/hg/arc-hg.pyc
+/support/hg/__pycache__/

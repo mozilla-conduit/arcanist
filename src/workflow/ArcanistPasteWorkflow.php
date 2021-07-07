@@ -12,7 +12,7 @@ final class ArcanistPasteWorkflow
 Share and grab text using the Paste application. To create a paste, use the
 "--input" flag or provide the text on stdin:
 
-  $ cat list_of_ducks.txt | arc paste
+  $ cat list_of_ducks.txt | arc paste --
   $ arc paste --input list_of_ducks.txt
 
 To retrieve a paste, specify the paste ID:
@@ -141,8 +141,7 @@ EOTEXT
     );
 
     $conduit_engine = $this->getConduitEngine();
-    $conduit_call = $conduit_engine->newCall($method, $parameters);
-    $conduit_future = $conduit_engine->newFuture($conduit_call);
+    $conduit_future = $conduit_engine->newFuture($method, $parameters);
     $result = $conduit_future->resolve();
 
     $paste_phid = idxv($result, array('object', 'phid'));
@@ -159,7 +158,7 @@ EOTEXT
 
     echo tsprintf(
       '%s',
-      $paste_ref->newDisplayRef()
+      $paste_ref->newRefView()
         ->setURI($uri));
 
     if ($is_browse) {

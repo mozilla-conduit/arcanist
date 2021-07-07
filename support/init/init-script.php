@@ -50,6 +50,21 @@ function __arcanist_init_script__() {
     // See T13296. On macOS under PHP 7.3.x, PCRE currently segfaults after
     // "fork()" if "pcre.jit" is enabled.
     'pcre.jit' => 0,
+
+    // See PHI1894. This option was introduced in PHP 7.4, and removes the
+    // "args" value from exception backtraces. We have some unit tests which
+    // inspect "args", and this option generally obscures useful debugging
+    // information without any benefit in the context of Phabricator.
+    'zend.exception_ignore_args' => 0,
+
+    // See T13100. We'd like the regex engine to fail, rather than segfault,
+    // if handed a pathological regular expression.
+    'pcre.backtrack_limit' => 10000,
+    'pcre.recusion_limit' => 10000,
+
+    // NOTE: Phabricator applies a similar set of startup options for Web
+    // environments in "PhabricatorStartup". Changes here may also be
+    // appropriate to apply there.
   );
 
   foreach ($config_map as $config_key => $config_value) {
@@ -88,14 +103,15 @@ function __arcanist_init_script__() {
   )));
 
   // Disable the insanely dangerous XML entity loader by default.
+  // PHP 8 deprecates this function and disables this by default; remove once
+  // PHP 7 is no longer supported or a future version has removed the function
+  // entirely.
   if (function_exists('libxml_disable_entity_loader')) {
-    libxml_disable_entity_loader(true);
+    @libxml_disable_entity_loader(true);
   }
 
   $root = dirname(dirname(dirname(__FILE__)));
   require_once $root.'/src/init/init-library.php';
-
-  PhutilErrorHandler::initialize();
 
   PhutilErrorHandler::initialize();
 

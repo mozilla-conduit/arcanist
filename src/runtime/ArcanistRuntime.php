@@ -41,6 +41,8 @@ final class ArcanistRuntime {
       $log->writeError(pht('USAGE EXCEPTION'), $ex->getMessage());
     } catch (ArcanistUserAbortException $ex) {
       $log->writeError(pht('---'), $ex->getMessage());
+    } catch (ArcanistConduitAuthenticationException $ex) {
+      $log->writeError($ex->getTitle(), $ex->getBody());
     }
 
     return 1;
@@ -551,6 +553,7 @@ final class ArcanistRuntime {
             'workflow in a given toolset must have a unique name.',
             get_class($workflow),
             get_class($map[$key]),
+            $key,
             get_class($toolset),
             $toolset->getToolsetKey()));
       }
@@ -884,7 +887,6 @@ final class ArcanistRuntime {
       $legacy[] = new ArcanistGetConfigWorkflow();
       $legacy[] = new ArcanistSetConfigWorkflow();
       $legacy[] = new ArcanistInstallCertificateWorkflow();
-      $legacy[] = new ArcanistLandWorkflow();
       $legacy[] = new ArcanistLintersWorkflow();
       $legacy[] = new ArcanistLintWorkflow();
       $legacy[] = new ArcanistListWorkflow();

@@ -82,14 +82,19 @@ final class ArcanistFormattedStringXHPASTLinterRule
       }
 
       $format = $parameters->getChildByIndex($start);
-      if ($format->getTypeName() != 'n_STRING_SCALAR') {
+      if (!$format->isConstantString()) {
+
+        // TODO: When this parameter is not a constant string, the call may
+        // be unsafe. We should make some attempt to warn about this for
+        // "qsprintf()" and other security-sensitive functions.
+
         continue;
       }
 
       $argv = array($format->evalStatic()) + array_fill(0, $argc, null);
 
       try {
-        xsprintf(null, null, $argv);
+        xsprintf(array(__CLASS__, 'processXsprintfCallback'), null, $argv);
       } catch (BadFunctionCallException $ex) {
         $this->raiseLintAtNode(
           $call,
@@ -98,6 +103,25 @@ final class ArcanistFormattedStringXHPASTLinterRule
         // Ignore.
       }
     }
+  }
+
+  public static function processXsprintfCallback(
+    $userdata,
+    &$pattern,
+    &$pos,
+    &$value,
+    &$length) {
+
+    if ($value !== null) {
+      throw new Exception('Expected dummy value to be null');
+    }
+
+    // Turn format "%$pattern" with argument null into format "%s" with
+    // argument "%$pattern". This ensures we always provide valid input for
+    // sprintf to avoid getting a ValueError when using custom format
+    // specifiers.
+    $value = '%'.$pattern[$pos];
+    $pattern[$pos] = 's';
   }
 
 }
