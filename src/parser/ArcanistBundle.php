@@ -502,7 +502,7 @@ final class ArcanistBundle extends Phobject {
   }
 
   private function breakHunkIntoSmallHunks(ArcanistDiffHunk $base_hunk) {
-    $context = 3;
+    $context = 5;
 
     $results = array();
     $lines = phutil_split_lines($base_hunk->getCorpus());
