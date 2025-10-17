@@ -50,7 +50,7 @@ abstract class ArcanistExternalLinter extends ArcanistFutureLinter {
    * @task bin
    */
   public function getUpgradeInstructions() {
-      return null;
+      return '';
   }
 
   /**
@@ -303,7 +303,7 @@ abstract class ArcanistExternalLinter extends ArcanistFutureLinter {
          $this->versionRequirement);
 
       $instructions = $this->getUpgradeInstructions();
-      if ($instructions) {
+      if (phutil_nonempty_string($instructions)) {
         $message .= "\n".pht('TO UPGRADE: %s', $instructions);
       }
 
@@ -331,7 +331,7 @@ abstract class ArcanistExternalLinter extends ArcanistFutureLinter {
         $version);
 
       $instructions = $this->getUpgradeInstructions();
-      if ($instructions) {
+      if (phutil_nonempty_string($instructions)) {
         $message .= "\n".pht('TO UPGRADE: %s', $instructions);
       }
 
