@@ -187,6 +187,10 @@ final class ArcanistDiffParser extends Phobject {
   }
 
   public function parseDiff($diff) {
+    if (!phutil_nonempty_string($diff)) {
+      throw new Exception(pht("Can't parse an empty diff!"));
+    }
+
     if (!strlen(trim($diff))) {
       throw new Exception(pht("Can't parse an empty diff!"));
     }
