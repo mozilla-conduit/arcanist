@@ -118,7 +118,9 @@ final class PhutilTranslator extends Phobject {
 
     foreach ($args as $k => $arg) {
       if ($arg instanceof PhutilNumber) {
-        $args[$k] = $this->formatNumber($arg->getNumber(), $arg->getDecimals());
+        $args[$k] = $this->formatNumber(
+          (float)$arg->getNumber(),
+          $arg->getDecimals());
       }
     }
 
