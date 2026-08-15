@@ -51,6 +51,8 @@ final class Filesystem extends Phobject {
   /**
    * Make assertions about the state of path in preparation for
    * writeFile() and writeFileIfChanged().
+   *
+   * @param string $path File path to write.
    */
   public static function assertWritableFile($path) {
     $path = self::resolvePath($path);
@@ -86,6 +88,7 @@ final class Filesystem extends Phobject {
    * @task   file
    */
   public static function writeFile($path, $data) {
+    $path = (string)$path;
     self::assertWritableFile($path);
 
     if (@file_put_contents($path, $data) === false) {
