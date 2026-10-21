@@ -146,7 +146,7 @@ final class PhutilArgumentParser extends Phobject {
 
     $specs_by_name  = mpull($non_wildcard, null, 'getName');
     $specs_by_short = mpull($non_wildcard, null, 'getShortAlias');
-    unset($specs_by_short[null]);
+    unset($specs_by_short['']);
 
     $argv = $this->argv;
     $len = count($argv);
@@ -490,7 +490,7 @@ final class PhutilArgumentParser extends Phobject {
     if ($workflow->isExecutable()) {
       $workflow->setArgv($this);
       $err = $workflow->execute($this);
-      exit($err);
+      exit($err ?? 0);
     } else {
       return $workflow;
     }
@@ -863,7 +863,7 @@ final class PhutilArgumentParser extends Phobject {
   private function mergeSpecs(array $specs) {
 
     $short_map = mpull($this->specs, null, 'getShortAlias');
-    unset($short_map[null]);
+    unset($short_map['']);
 
     $wildcard = null;
     foreach ($this->specs as $spec) {

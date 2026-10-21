@@ -66,7 +66,9 @@ final class PhutilURI extends Phobject {
       // in between them, parse that, then remove the path. See T6106.
 
       $parts = parse_url($matches[1].'/'.$matches[2]);
-      unset($parts['path']);
+      if ($parts !== false) {
+        unset($parts['path']);
+      }
     } else if ($this->isGitURIPattern($uri)) {
       // Handle Git/SCP URIs in the form "user@domain:relative/path".
 
@@ -174,7 +176,7 @@ final class PhutilURI extends Phobject {
     $has_protocol = ($protocol !== null) && strlen($protocol);
     $has_auth = ($auth !== null);
     $has_domain = ($domain !== null) && strlen($domain);
-    $has_port = ($port !== null) && strlen($port);
+    $has_port = ($port !== null) && $port !== '';
 
     if ($has_protocol || $has_auth || $has_domain) {
       if ($this->isGitURI()) {
@@ -559,6 +561,34 @@ final class PhutilURI extends Phobject {
     // of a Git URI, but we can't tell which the user intends and it's safer
     // to treat it as a normal URI.
     return false;
+  }
+
+  /**
+   * This is just a complicated type-check - we'll eventually replace it with a
+   * native type-hint of `PhutilURI | string | null`, when this type-hint is
+   * available (php 8.0).
+   *
+   * Before php 8, and after we suspect there aren't many more cases where this
+   * fails, we'll replace the log with an exception.
+   */
+  public static function checkHrefType($value) {
+    if ($value === null || is_string($value)) {
+      return;
+    }
+
+    if ($value instanceof PhutilURI) {
+      return;
+    }
+
+    $report_type = is_object($value) ? get_class($value) : gettype($value);
+
+    // We log stuff with a kind stack trace
+    phlog(
+      pht(
+        'Unexpected value type provided for an HREF field - %s. '.
+        'Please share this stack trace as comment in Task %s',
+        $report_type,
+        'https://we.phorge.it/T15316'));
   }
 
 }

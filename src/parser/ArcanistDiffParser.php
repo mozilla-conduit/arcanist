@@ -187,6 +187,10 @@ final class ArcanistDiffParser extends Phobject {
   }
 
   public function parseDiff($diff) {
+    if (!phutil_nonempty_string($diff)) {
+      throw new Exception(pht("Can't parse an empty diff!"));
+    }
+
     if (!strlen(trim($diff))) {
       throw new Exception(pht("Can't parse an empty diff!"));
     }
@@ -263,7 +267,9 @@ final class ArcanistDiffParser extends Phobject {
         // searching for "diff -r" or "diff --git" in the text.
         $this->saveLine();
         $line = $this->nextLineThatLooksLikeDiffStart();
-        if (!$this->tryMatchHeader($patterns, $line, $match)) {
+        if (!phutil_nonempty_string($line)) {
+          $failed_parse = true;
+        } else if (!$this->tryMatchHeader($patterns, $line, $match)) {
           // Restore line before guessing to display correct error.
           $this->restoreLine();
           $failed_parse = true;

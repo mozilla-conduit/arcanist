@@ -118,7 +118,9 @@ final class PhutilTranslator extends Phobject {
 
     foreach ($args as $k => $arg) {
       if ($arg instanceof PhutilNumber) {
-        $args[$k] = $this->formatNumber($arg->getNumber(), $arg->getDecimals());
+        $args[$k] = $this->formatNumber(
+          (float)$arg->getNumber(),
+          $arg->getDecimals());
       }
     }
 
@@ -139,7 +141,12 @@ final class PhutilTranslator extends Phobject {
       }
     }
 
-    $result = vsprintf($translation, $args);
+    try {
+      $result = vsprintf($translation, $args);
+    } catch (ValueError $ex) {
+      // In PHP 8 vsprintf throws an exception; in PHP 7 it returns false
+      $result = false;
+    }
     if ($result === false) {
       // If vsprintf() fails (often because the translated string references
       // too many parameters), show the bad template with a note instead of

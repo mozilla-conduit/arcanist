@@ -3,7 +3,7 @@ rename from koan2
 rename to koan
 --- a/koan2
 +++ b/koan
-@@ -1,6 +1,6 @@
+@@ -1,8 +1,8 @@
  A monk asked Joshu,
  "Has a dog Buddha nature?"
 -Joshu replied, "Mu".
@@ -11,4 +11,6 @@ rename to koan
  
  The quick brown
  fox jumped over
+ the lazy dog.
+ 
 

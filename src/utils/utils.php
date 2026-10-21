@@ -34,7 +34,11 @@ function id($x) {
  *                  $default is returned without raising a warning.
  */
 function idx(array $array, $key, $default = null) {
-  // isset() is a micro-optimization - it is fast but fails for null values.
+  // PHP 8.5 complains about null set as array offset; previous PHP versions
+  // cast null array keys to an empty string anyway.
+  $key = $key ?? '';
+
+  // isset() is a micro-optimization - it is fast but fails for empty values.
   if (isset($array[$key])) {
     return $array[$key];
   }
@@ -148,6 +152,9 @@ function mpull(array $list, $method, $key_method = null) {
     } else {
       $value = $object;
     }
+    // PHP 8.5 complains about null set as array offset; previous PHP versions
+    // cast null array keys to an empty string anyway.
+    $key = $key ?? '';
     $result[$key] = $value;
   }
   return $result;
@@ -222,6 +229,9 @@ function ppull(array $list, $property, $key_property = null) {
     } else {
       $value = $object;
     }
+    // PHP 8.5 complains about null set as array offset; previous PHP versions
+    // cast null array keys to an empty string anyway.
+    $key = $key ?? '';
     $result[$key] = $value;
   }
   return $result;
@@ -270,6 +280,9 @@ function ipull(array $list, $index, $key_index = null) {
     } else {
       $value = $array;
     }
+    // PHP 8.5 complains about null set as array offset; previous PHP versions
+    // cast null array keys to an empty string anyway.
+    $key = $key ?? '';
     $result[$key] = $value;
   }
   return $result;
@@ -313,10 +326,12 @@ function mgroup(array $list, $by /* , ... */) {
   $groups = array();
   foreach ($map as $group) {
     // Can't array_fill_keys() here because 'false' gets encoded wrong.
+    $group = $group ?? '';
     $groups[$group] = array();
   }
 
   foreach ($map as $key => $group) {
+    $group = $group ?? '';
     $groups[$group][$key] = $list[$key];
   }
 
@@ -352,10 +367,12 @@ function igroup(array $list, $by /* , ... */) {
 
   $groups = array();
   foreach ($map as $group) {
+    $group = $group ?? '';
     $groups[$group] = array();
   }
 
   foreach ($map as $key => $group) {
+    $group = $group ?? '';
     $groups[$group][$key] = $list[$key];
   }
 
@@ -900,7 +917,7 @@ function array_mergev(array $arrayv) {
  * NOTE: This function does not treat "\r" on its own as a newline because none
  * of SVN, Git or Mercurial do on any OS.
  *
- * @param string Block of text to be split into lines.
+ * @param string|PhutilSafeHTML $corpus Block of text to be split into lines.
  * @param bool If true, retain line endings in result strings.
  * @return list List of lines.
  *
@@ -908,15 +925,15 @@ function array_mergev(array $arrayv) {
  * @phutil-external-symbol function phutil_safe_html
  */
 function phutil_split_lines($corpus, $retain_endings = true) {
-  if (!strlen($corpus)) {
+  if (!phutil_nonempty_stringlike($corpus)) {
     return array('');
   }
 
   // Split on "\r\n" or "\n".
   if ($retain_endings) {
-    $lines = preg_split('/(?<=\n)/', $corpus);
+    $lines = preg_split('/(?<=\n)/', (string)$corpus);
   } else {
-    $lines = preg_split('/\r?\n/', $corpus);
+    $lines = preg_split('/\r?\n/', (string)$corpus);
   }
 
   // If the text ends with "\n" or similar, we'll end up with an empty string
@@ -954,7 +971,7 @@ function phutil_split_lines($corpus, $retain_endings = true) {
  * @param   list  List of scalars.
  * @return  dict  Dictionary with inputs mapped to themselves.
  */
-function array_fuse(array $list) {
+function array_fuse(?array $list = null) {
   if ($list) {
     return array_combine($list, $list);
   }
@@ -1888,6 +1905,9 @@ function phutil_is_natural_list(array $list) {
  * @return  string  URI encoded string, except for '/'.
  */
 function phutil_escape_uri($string) {
+  if ($string === null) {
+    return '';
+  }
   return str_replace('%2F', '/', rawurlencode($string));
 }
 
@@ -1948,8 +1968,12 @@ function phutil_is_interactive() {
   return false;
 }
 
+/**
+ * @param mixed $message
+ * @return string
+ */
 function phutil_encode_log($message) {
-  return addcslashes($message, "\0..\37\\\177..\377");
+  return addcslashes((string)$message, "\0..\37\\\177..\377");
 }
 
 /**
@@ -2184,6 +2208,9 @@ function phutil_nonempty_stringlike($value) {
  * string other than the empty string, integers, and floats are considered
  * scalar.
  *
+ * Note that booleans are also valid scalars, where false is considered empty,
+ * and true is non-empty since if you cast true to string, it's non-empty.
+ *
  * This method raises an exception if passed any other value.
  *
  * @param Value to test.
@@ -2200,6 +2227,14 @@ function phutil_nonempty_scalar($value) {
 
   if (is_string($value) || is_int($value) || is_float($value)) {
     return true;
+  }
+
+  // Booleans are also valid scalars by PHP. Inventing the opposite can be
+  // too much esoteric and problematic.
+  //   false: empty,     because casted to string becomes ''  (empty)
+  //   true:  non-empty, because casted to string becomes '1' (non-empty)
+  if ($value === false || $value === true) {
+    return $value;
   }
 
   if (is_object($value)) {

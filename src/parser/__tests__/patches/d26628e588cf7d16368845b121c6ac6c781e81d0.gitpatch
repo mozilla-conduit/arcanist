@@ -1,7 +1,7 @@
 diff --git a/koan b/koan
 --- a/koan
 +++ b/koan
-@@ -1,6 +1,6 @@
+@@ -1,8 +1,8 @@
  A monk asked Joshu,
  "Has a dog Buddha nature?"
 -Joshu replied, "No".
@@ -9,12 +9,14 @@ diff --git a/koan b/koan
  
  The quick brown
  fox jumped over
+ the lazy dog.
+ 
 diff --git a/koan b/koan2
 copy from koan
 copy to koan2
 --- a/koan
 +++ b/koan2
-@@ -1,6 +1,6 @@
+@@ -1,8 +1,8 @@
  A monk asked Joshu,
  "Has a dog Buddha nature?"
 -Joshu replied, "No".
@@ -22,4 +24,6 @@ copy to koan2
  
  The quick brown
  fox jumped over
+ the lazy dog.
+ 
 

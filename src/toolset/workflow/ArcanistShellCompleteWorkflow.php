@@ -92,7 +92,7 @@ EOTEXT
     $argv = $this->getArgument('argv');
 
     $is_generate = $this->getArgument('generate');
-    $is_shell = (bool)strlen($this->getArgument('shell'));
+    $is_shell = phutil_nonempty_string($this->getArgument('shell'));
     $is_current = $this->getArgument('current');
 
     if ($argv) {
@@ -194,7 +194,7 @@ EOTEXT
     $file = $spec['file'];
     $home = getenv('HOME');
 
-    if (!strlen($home)) {
+    if (!$home || !phutil_nonempty_string($home)) {
       throw new PhutilArgumentUsageException(
         pht(
           'The "HOME" environment variable is not defined, so this workflow '.
@@ -343,7 +343,7 @@ EOTEXT
       pht('Detecting current shell...'));
 
     $shell_env = getenv('SHELL');
-    if (!strlen($shell_env)) {
+    if (!$shell_env || !phutil_nonempty_string($shell_env)) {
       $log->writeWarning(
         pht('SHELL'),
         pht(

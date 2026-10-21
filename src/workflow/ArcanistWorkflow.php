@@ -290,7 +290,7 @@ abstract class ArcanistWorkflow extends Phobject {
    * @return string  10-space indented help to use the command.
    */
   public function getCommandHelp() {
-    return null;
+    return '';
   }
 
   public function supportsToolset(ArcanistToolset $toolset) {
@@ -480,7 +480,7 @@ abstract class ArcanistWorkflow extends Phobject {
       // token-based authentication. Use that instead of all the certificate
       // stuff.
       $token = idx($credentials, 'token');
-      if (strlen($token)) {
+      if (phutil_nonempty_string($token)) {
         $conduit = $this->getConduit();
 
         $conduit->setConduitToken($token);
@@ -1516,7 +1516,15 @@ abstract class ArcanistWorkflow extends Phobject {
     }
   }
 
+  /**
+   * @param string|null $revision_id
+   * @return string|null Revision ID without monogram. Null only if an error
+   *   occurred.
+   */
   final protected function normalizeRevisionID($revision_id) {
+    if ($revision_id === null) {
+      return '';
+    }
     return preg_replace('/^D/i', '', $revision_id);
   }
 
@@ -2245,7 +2253,7 @@ abstract class ArcanistWorkflow extends Phobject {
     $map = $this->getModernCommonDictionary($map);
 
     $details = idx($map, 'userData');
-    if (strlen($details)) {
+    if (phutil_nonempty_string($details)) {
       $map['details'] = (string)$details;
     }
     unset($map['userData']);

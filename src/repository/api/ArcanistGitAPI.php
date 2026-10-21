@@ -654,7 +654,7 @@ final class ArcanistGitAPI extends ArcanistRepositoryAPI {
     $match = null;
     $git_hash = $this->cinnabarHg2Git($string);
 
-    if (preg_match('/@([0-9]+)$/', $string, $match)) {
+    if ($string !== null && preg_match('/@([0-9]+)$/', $string, $match)) {
       $stdout = $this->getHashFromFromSVNRevisionNumber($match[1]);
     } else if ($git_hash) {
       echo phutil_console_format("%s\n", pht('Using git cinnabar.'));

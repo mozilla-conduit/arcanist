@@ -51,6 +51,8 @@ final class Filesystem extends Phobject {
   /**
    * Make assertions about the state of path in preparation for
    * writeFile() and writeFileIfChanged().
+   *
+   * @param string $path File path to write.
    */
   public static function assertWritableFile($path) {
     $path = self::resolvePath($path);
@@ -86,6 +88,7 @@ final class Filesystem extends Phobject {
    * @task   file
    */
   public static function writeFile($path, $data) {
+    $path = (string)$path;
     self::assertWritableFile($path);
 
     if (@file_put_contents($path, $data) === false) {
@@ -275,7 +278,7 @@ final class Filesystem extends Phobject {
       $trap->destroy();
 
       if (!$ok) {
-        if (strlen($err)) {
+        if ($err !== null && strlen($err)) {
           throw new FilesystemException(
             $to,
             pht(
@@ -307,7 +310,7 @@ final class Filesystem extends Phobject {
    * @task   file
    */
   public static function remove($path) {
-    if (!strlen($path)) {
+    if ($path == null || !strlen($path)) {
       // Avoid removing PWD.
       throw new Exception(
         pht(
@@ -673,7 +676,7 @@ final class Filesystem extends Phobject {
     }
 
     // If we come back with an encoding, strip it off.
-    if (strpos($mime_type, ';') !== false) {
+    if ($mime_type !== null && strpos($mime_type, ';') !== false) {
       list($type, $encoding) = explode(';', $mime_type, 2);
       $mime_type = $type;
     }
@@ -785,7 +788,7 @@ final class Filesystem extends Phobject {
 
     $tries = 3;
     do {
-      $dir = $base.substr(base_convert(md5(mt_rand()), 16, 36), 0, 16);
+      $dir = $base.bin2hex(random_bytes(8));
       try {
         self::createDirectory($dir, $umask);
         break;

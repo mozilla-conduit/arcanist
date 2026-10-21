@@ -12,7 +12,7 @@ final class ArcanistUnitConsoleRenderer extends ArcanistUnitRenderer {
 
     $test_name = $result->getName();
     $test_namespace = $result->getNamespace();
-    if (strlen($test_namespace)) {
+    if (phutil_nonempty_string($test_namespace)) {
       $test_name = $test_namespace.'::'.$test_name;
     }
 
@@ -82,8 +82,8 @@ final class ArcanistUnitConsoleRenderer extends ArcanistUnitRenderer {
 
   private function formatTime($seconds) {
     if ($seconds >= 60) {
-      $minutes = floor($seconds / 60);
-      return pht('%dm%02ds', $minutes, round($seconds % 60));
+      $minutes = (int)floor($seconds / 60);
+      return pht('%dm%02ds', $minutes, round((int)$seconds % 60));
     }
 
     if ($seconds >= 1) {
