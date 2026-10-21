@@ -766,9 +766,14 @@ final class PhutilUTF8TestCase extends PhutilTestCase {
       (strlen($original_locale) > 0),
       pht('System has some identifiable locale.'));
 
-    $this->assertFalse(
-      phutil_is_system_locale_available('duck.quack'),
-      pht('Imaginary locale should be unavailable.'));
+    // musl, as on Alpine, accepts any locale name, so imaginary locales are
+    // only unavailable elsewhere.
+    $is_musl = (bool)preg_match('/musl/', (string)@shell_exec('ldd 2>&1'));
+    if (!$is_musl) {
+      $this->assertFalse(
+        phutil_is_system_locale_available('duck.quack'),
+        pht('Imaginary locale should be unavailable.'));
+    }
 
     $this->assertEqual(
       $original_locale,
@@ -779,16 +784,18 @@ final class PhutilUTF8TestCase extends PhutilTestCase {
       phutil_is_system_locale_available($original_locale),
       pht('The current locale should be available.'));
 
-    $caught = null;
-    try {
-      phutil_set_system_locale('duck.quack');
-    } catch (Exception $ex) {
-      $caught = $ex;
-    }
+    if (!$is_musl) {
+      $caught = null;
+      try {
+        phutil_set_system_locale('duck.quack');
+      } catch (Exception $ex) {
+        $caught = $ex;
+      }
 
-    $this->assertTrue(
-      ($caught instanceof Exception),
-      pht('Setting an imaginary locale should raise an exception.'));
+      $this->assertTrue(
+        ($caught instanceof Exception),
+        pht('Setting an imaginary locale should raise an exception.'));
+    }
 
     // We need two locales for the next part because one of them might be the
     // current locale, and we want to make sure we can actually change the
