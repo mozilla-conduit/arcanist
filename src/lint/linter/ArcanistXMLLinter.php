@@ -35,10 +35,18 @@ final class ArcanistXMLLinter extends ArcanistLinter {
   }
 
   public function lintPath($path) {
+    $data = $this->getData($path);
+
+    // libxml 2.13 reports "Document is empty" for an empty file, which older
+    // versions didn't. Keep not raising anything for empty files.
+    if (!strlen($data)) {
+      return;
+    }
+
     libxml_use_internal_errors(true);
     libxml_clear_errors();
 
-    if (simplexml_load_string($this->getData($path))) {
+    if (simplexml_load_string($data)) {
       // XML appears to be valid.
       return;
     }
